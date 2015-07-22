@@ -7,10 +7,10 @@ Features :
 * The items are persisted and retrieved on app restart.
 
 Enhancements:
-* Trim leading and trailing spaces in the entered item, if any.
-* Don't allow for blanks (empty item) to be added as new item.
-* Don't allow editing a new item and reset it to a blank.
 * Ask for user confirmation before deletion on long click (using AlertDialog & DialogInterface).
+* Don't allow for blanks (empty item) to be added as new item.
+* Don't allow editing an existing item and reset it to a blank.
+* Trim leading and trailing spaces in the entered item, if any.
 
 ** DEMO **
 
