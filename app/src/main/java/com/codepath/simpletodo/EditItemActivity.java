@@ -44,7 +44,7 @@ public class EditItemActivity extends Activity {
     }
 
     public void onUpdateItem(View v) {
-        // Invoked on clicking SAVE. Pass changes back to parent activity.
+        // Invoked on clicking UPDATE. Pass changes back to parent activity.
         Intent result = new Intent();
         itemNewValue = etUpdateItem.getText().toString();
         if ((itemNewValue.length() == 0) || (itemNewValue.length() > 0  && itemNewValue.trim().length() == 0)) {

@@ -1,6 +1,8 @@
 package com.codepath.simpletodo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -45,12 +47,11 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected  void onActivityResult(int requestCode, int resultCode, Intent result) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         // Process the changes from EditItemActivity and Update the list
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             int itemPosition = result.getIntExtra("itemPosition", 0);
             String itemNewValue = result.getStringExtra("itemNewValue");
-            // Toast.makeText(getApplicationContext(), itemPosition + " " + itemNewValue, Toast.LENGTH_SHORT).show();
             items.remove(itemPosition);
             items.add(itemPosition, itemNewValue);
             itemsAdapter.notifyDataSetChanged();
@@ -62,9 +63,35 @@ public class MainActivity extends Activity {
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                items.remove(position);
-                itemsAdapter.notifyDataSetChanged();
-                writeItems();
+                final int pos = position;
+                // Setup a Dialog Listener for Deletion
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                // Yes button clicked. Delete the item.
+                                items.remove(pos);
+                                itemsAdapter.notifyDataSetChanged();
+                                writeItems();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                // No button clicked. Do not delete item.
+                                break;
+
+                            default:
+                                // Default action is not to delete.
+                                break;
+                        }
+                    }
+                };
+
+                // Build an alert dialog to get user confirmation before deletion.
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Are you sure you want to delete?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+
                 return true;
             }
         });
@@ -80,6 +107,7 @@ public class MainActivity extends Activity {
         });
     }
 
+    // Read items from file
     private void readItems() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
@@ -90,6 +118,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Write items to file
     private void writeItems() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
@@ -100,12 +129,12 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Add new item
     public void onAddItem(View v) {
         String itemText = etNewItem.getText().toString();
-        if ((itemText.length() == 0) || (itemText.length() > 0  && itemText.trim().length() == 0)) {
+        if ((itemText.length() == 0) || (itemText.length() > 0 && itemText.trim().length() == 0)) {
             Toast.makeText(getApplicationContext(), "Please enter a valid item", Toast.LENGTH_SHORT).show();
-        }
-        else if (itemText.length() > 0) {
+        } else if (itemText.length() > 0) {
             itemsAdapter.add(itemText.trim());
             etNewItem.setText("");
             writeItems();
