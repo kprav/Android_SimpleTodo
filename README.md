@@ -12,6 +12,10 @@ Enhancements:
 * Don't allow editing an existing item and reset it to a blank.
 * Trim leading and trailing spaces in the entered item, if any.
 
-** DEMO **
+Demo:
 
 ![demo](screenshots/Initial.gif)
+
+No Duplicates Allowed:
+
+![demo](screenshots/No_Duplicates.gif)
