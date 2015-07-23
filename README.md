@@ -7,6 +7,8 @@ Features :
 * The items are persisted and retrieved on app restart.
 
 Enhancements:
+* Use SQLite instead of file.
+* No duplicates allowed.
 * Ask for user confirmation before deletion on long click (using AlertDialog & DialogInterface).
 * Don't allow for blanks (empty item) to be added as new item.
 * Don't allow editing an existing item and reset it to a blank.
