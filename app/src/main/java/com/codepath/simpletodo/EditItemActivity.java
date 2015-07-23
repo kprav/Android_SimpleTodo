@@ -13,11 +13,10 @@ import android.widget.Toast;
 
 public class EditItemActivity extends Activity {
 
-    EditText etUpdateItem;
-
-    int itemPosition;
-    String itemValue;
-    String itemNewValue;
+    private EditText etUpdateItem;
+    private int itemPosition;
+    private String itemValue;
+    private String itemNewValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

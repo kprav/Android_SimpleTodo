@@ -20,15 +20,17 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 
 public class MainActivity extends Activity {
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
-    ListView lvItems;
-    EditText etNewItem;
-    int REQUEST_CODE = 20;
+    private ArrayList<String> items;
+    private ArrayAdapter<String> itemsAdapter;
+    private ListView lvItems;
+    private EditText etNewItem;
+    private int REQUEST_CODE = 20;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,9 @@ public class MainActivity extends Activity {
         etNewItem.requestFocus();
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         lvItems = (ListView) findViewById(R.id.lvItems);
-        readItems();
+        initializeDatabase();
+        readItemsFromDb();
+        // readItemsFromFile();
         itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
         setupListViewListener();
@@ -51,12 +55,19 @@ public class MainActivity extends Activity {
         // Process the changes from EditItemActivity and Update the list
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             int itemPosition = result.getIntExtra("itemPosition", 0);
+            String itemValue = items.get(itemPosition);
             String itemNewValue = result.getStringExtra("itemNewValue");
-            items.remove(itemPosition);
-            items.add(itemPosition, itemNewValue);
-            itemsAdapter.notifyDataSetChanged();
-            writeItems();
+            if (updateItemInDb(itemValue, itemNewValue)) {
+                items.remove(itemPosition);
+                items.add(itemPosition, itemNewValue);
+                itemsAdapter.notifyDataSetChanged();
+            }
+            // writeItemsToFile();
         }
+    }
+
+    private void initializeDatabase() {
+        dbHelper = new DBHelper(this);
     }
 
     private void setupListViewListener() {
@@ -71,9 +82,10 @@ public class MainActivity extends Activity {
                         switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
                                 // Yes button clicked. Delete the item.
+                                deleteItemFromDb(items.get(pos));
                                 items.remove(pos);
                                 itemsAdapter.notifyDataSetChanged();
-                                writeItems();
+                                // writeItemsToFile();
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -107,8 +119,59 @@ public class MainActivity extends Activity {
         });
     }
 
+    // Read items from SQLite DB
+    private void readItemsFromDb() {
+        int numItemsInDb = dbHelper.getNumRows();
+        if (numItemsInDb > 0) {
+            TreeMap itemMap = dbHelper.getAllItems();
+            items = new ArrayList<String>(itemMap.values());
+        } else {
+            items = new ArrayList<String>();
+        }
+    }
+
+    // Write items to SQLite DB
+    private void writeItemToDb(String itemValue) {
+        if (items != null && items.contains(itemValue)) {
+            Toast.makeText(getApplicationContext(), "Item already exists", Toast.LENGTH_SHORT).show();
+        } else {
+            dbHelper.insertItem(itemValue);
+            itemsAdapter.add(itemValue.trim());
+            etNewItem.setText("");
+        }
+    }
+
+    // Update an item in SQLite DB
+    private boolean updateItemInDb(String itemValue, String itemNewValue) {
+        if (items != null && items.contains(itemNewValue)) {
+            Toast.makeText(getApplicationContext(), "Item already exists. Original item preserved!", Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            dbHelper.updateItem(itemValue, itemNewValue.trim());
+            return true;
+        }
+    }
+
+    // Delete an existing item from the SQLite DB
+    private void deleteItemFromDb(String itemValue) {
+        dbHelper.deleteItem(itemValue);
+    }
+
+    // Add new item
+    public void onAddItem(View v) {
+        String itemValue = etNewItem.getText().toString();
+        if ((itemValue.length() == 0) || (itemValue.length() > 0 && itemValue.trim().length() == 0)) {
+            Toast.makeText(getApplicationContext(), "Please enter a valid item", Toast.LENGTH_SHORT).show();
+        } else if (itemValue.length() > 0) {
+            writeItemToDb(itemValue.trim());
+            // writeItemsToFile();
+        }
+    }
+
     // Read items from file
-    private void readItems() {
+    // Deprecated, Now using SQLite DB
+    @Deprecated
+    private void readItemsFromFile() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
         try {
@@ -119,25 +182,15 @@ public class MainActivity extends Activity {
     }
 
     // Write items to file
-    private void writeItems() {
+    // Deprecated, Now using SQLite DB
+    @Deprecated
+    private void writeItemsToFile() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
         try {
             FileUtils.writeLines(todoFile, items);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    // Add new item
-    public void onAddItem(View v) {
-        String itemText = etNewItem.getText().toString();
-        if ((itemText.length() == 0) || (itemText.length() > 0 && itemText.trim().length() == 0)) {
-            Toast.makeText(getApplicationContext(), "Please enter a valid item", Toast.LENGTH_SHORT).show();
-        } else if (itemText.length() > 0) {
-            itemsAdapter.add(itemText.trim());
-            etNewItem.setText("");
-            writeItems();
         }
     }
 
