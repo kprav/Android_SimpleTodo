@@ -7,7 +7,6 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,7 +76,7 @@ public class MainActivity extends Activity {
             if (updatedItemDueTime == null)
                 updatedItemDueTime = customListAdapter.getItemDueTime(itemPosition);
 
-            if (updateItemInDb(itemValue, itemNewValue, updatedItemDueTime, null)) {
+            if (updateItemInDb(itemPosition, itemValue, itemNewValue, updatedItemDueTime, null)) {
                 // ListItem newListItem = new ListItem(itemNewValue, updatedItemDueTime, itemPriority);
                 ListItem.removeFromItemValueList(itemValue);
                 ListItem newListItem = new ListItem(itemNewValue, updatedItemDueTime);
@@ -214,8 +213,8 @@ public class MainActivity extends Activity {
     }
 
     // Update an item in SQLite DB
-    private boolean updateItemInDb(String itemValue, String itemNewValue, String itemDueTime, ListItem.ItemPriority itemPriority) {
-        if (listItems != null && ListItem.checkIfItemAlreadyExists(itemNewValue)) {
+    private boolean updateItemInDb(int itemPosition, String itemValue, String itemNewValue, String itemDueTime, ListItem.ItemPriority itemPriority) {
+        if (listItems != null && ListItem.checkIfItemAlreadyExists(itemNewValue) && !itemNewValue.equals(listItems.get(itemPosition).getItemValue())) {
             Toast.makeText(getApplicationContext(), "Item already exists. Original item preserved!", Toast.LENGTH_SHORT).show();
             return false;
         } else {
