@@ -1,6 +1,7 @@
 package com.codepath.simpletodo;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,11 @@ public class CustomListAdapter extends ArrayAdapter<ListItem> {
     public String getItemDueTime(int position) {
         ListItem item = getItem(position);
         return item.getItemDueTime();
+    }
+
+    public String getItemPriority(int position) {
+        ListItem item = getItem(position);
+        return item.getItemPriorityAsString();
     }
 
 }

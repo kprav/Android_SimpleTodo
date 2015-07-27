@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +53,6 @@ public class MainActivity extends Activity {
 
         initializeDatabase();
         readItemsFromDb();
-        // readItemsFromFile();
 
         View header = (View) getLayoutInflater().inflate(R.layout.list_row_header, null);
         customListAdapter = new CustomListAdapter(this, listItems);
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
                 updatedItemDueTime = customListAdapter.getItemDueTime(itemPosition);
 
             if (updateItemInDb(itemValue, itemNewValue, updatedItemDueTime, null)) {
-                // ListItem newListItem = new ListItem(itemNewValue, itemDueTime, itemPriority);
+                // ListItem newListItem = new ListItem(itemNewValue, updatedItemDueTime, itemPriority);
                 ListItem.removeFromItemValueList(itemValue);
                 ListItem newListItem = new ListItem(itemNewValue, updatedItemDueTime);
                 listItems.remove(itemPosition);
@@ -89,7 +89,6 @@ public class MainActivity extends Activity {
             etNewItem.setText("");
             etDatePicker.setText("");
             etTimePicker.setText("");
-            // writeItemsToFile();
         }
     }
 
@@ -101,7 +100,9 @@ public class MainActivity extends Activity {
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                final int pos = position;
+                // Since there is a header for the list view, reduce position by 1
+                final int pos = position - 1;
+
                 // Setup a Dialog Listener for Deletion
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
@@ -113,7 +114,6 @@ public class MainActivity extends Activity {
                                 deleteItemFromDb(listItems.get(pos).getItemValue());
                                 listItems.remove(pos);
                                 customListAdapter.notifyDataSetChanged();
-                                // writeItemsToFile();
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -139,9 +139,11 @@ public class MainActivity extends Activity {
         lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Since there is a header for the list view, reduce position by 1
+                final int pos = position - 1;
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-                intent.putExtra("itemPosition", position);
-                intent.putExtra("itemValue", customListAdapter.getItemValue(position));
+                intent.putExtra("itemPosition", pos);
+                intent.putExtra("itemValue", customListAdapter.getItemValue(pos));
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
@@ -248,8 +250,8 @@ public class MainActivity extends Activity {
                 // ListItem newListItem = new ListItem(itemValue, itemDueTime, itemPriority);
                 ListItem newListItem = new ListItem(itemValue, itemDueTime);
                 customListAdapter.add(newListItem);
+                customListAdapter.notifyDataSetChanged();
             }
-            // writeItemsToFile();
         }
         etNewItem.setText("");
         etDatePicker.setText("");

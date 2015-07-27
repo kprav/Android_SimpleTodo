@@ -31,6 +31,24 @@ public class ListItem {
             }
             return returnValue;
         }
+
+        public static ItemPriority toItemPriority(String string) {
+            ItemPriority itemPriority = MEDIUM;
+            switch(string) {
+                case "LOW":
+                    itemPriority = LOW;
+                    break;
+                case "MEDIUM":
+                    itemPriority = MEDIUM;
+                    break;
+                case "HIGH":
+                    itemPriority = HIGH;
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+            return itemPriority;
+        }
     }
 
     // Constructor

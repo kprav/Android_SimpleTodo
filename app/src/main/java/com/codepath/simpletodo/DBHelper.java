@@ -108,10 +108,8 @@ public class DBHelper extends SQLiteOpenHelper {
         while (cur.isAfterLast() == false) {
             String itemName = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_TEXT));
             String itemDueTime = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_DUE_TIME));
-            String itemPriority = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_PRIORITY));
-            ListItem.ItemPriority itemPriorityEnum = itemPriority.equals("H") ? ListItem.ItemPriority.HIGH :
-                    itemPriority.equals("M") ? ListItem.ItemPriority.MEDIUM : ListItem.ItemPriority.LOW;
-            ListItem listItem = new ListItem(itemName, itemDueTime, itemPriorityEnum);
+            ListItem.ItemPriority itemPriority = ListItem.ItemPriority.toItemPriority(cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_PRIORITY)));
+            ListItem listItem = new ListItem(itemName, itemDueTime, itemPriority);
             listItems.add(listItem);
             cur.moveToNext();
         }
