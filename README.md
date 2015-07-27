@@ -7,6 +7,7 @@ Features :
 * The items are persisted and retrieved on app restart.
 
 Enhancements:
+* Custom Adapter for List View
 * Use SQLite instead of file.
 * No duplicates allowed.
 * Ask for user confirmation before deletion on long click (using AlertDialog & DialogInterface).
