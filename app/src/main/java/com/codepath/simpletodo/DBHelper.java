@@ -16,7 +16,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TODO_TABLE_NAME = "TODO";
     public static final String TODO_COLUMN_ID = "id";
     public static final String TODO_COLUMN_ITEM_TEXT = "item_text";
-    public static final String TODO_COLUMN_ITEM_CREATION_TIME = "creation_time";
     public static final String TODO_COLUMN_ITEM_DUE_TIME = "item_due_time";
     public static final String TODO_COLUMN_ITEM_PRIORITY = "item_priority";
 
@@ -29,7 +28,6 @@ public class DBHelper extends SQLiteOpenHelper {
         String sqlQuery = "create table " + TODO_TABLE_NAME + " (" +
                 TODO_COLUMN_ID + " integer primary key autoincrement, " +
                 TODO_COLUMN_ITEM_TEXT + " text not null unique, " +
-                TODO_COLUMN_ITEM_CREATION_TIME + " text, " +
                 TODO_COLUMN_ITEM_DUE_TIME + " text, " +
                 TODO_COLUMN_ITEM_PRIORITY + " text)";
         db.execSQL(sqlQuery);
@@ -43,11 +41,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // Insert an item into the DB
-    public boolean insertItem(String itemName, String itemCreationTIme, String itemDueTime, String itemPriority) {
+    public boolean insertItem(String itemName, String itemDueTime, String itemPriority) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(TODO_COLUMN_ITEM_TEXT, itemName);
-        contentValues.put(TODO_COLUMN_ITEM_CREATION_TIME, itemCreationTIme);
         contentValues.put(TODO_COLUMN_ITEM_DUE_TIME, itemDueTime);
         contentValues.put(TODO_COLUMN_ITEM_PRIORITY, itemPriority);
         try {
@@ -60,11 +57,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     // Update an item in the DB
-    public boolean updateItem(String itemText, String itemNewText, String itemUpdateTime, String itemDueTime, String itemPriority) {
+    public boolean updateItem(String itemText, String itemNewText, String itemDueTime, String itemPriority) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(TODO_COLUMN_ITEM_TEXT, itemNewText);
-        contentValues.put(TODO_COLUMN_ITEM_CREATION_TIME, itemUpdateTime);
         contentValues.put(TODO_COLUMN_ITEM_DUE_TIME, itemDueTime);
         contentValues.put(TODO_COLUMN_ITEM_PRIORITY, itemPriority);
         try {
@@ -111,12 +107,11 @@ public class DBHelper extends SQLiteOpenHelper {
         cur.moveToFirst();
         while (cur.isAfterLast() == false) {
             String itemName = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_TEXT));
-            String itemCreationTime = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_CREATION_TIME));
             String itemDueTime = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_DUE_TIME));
             String itemPriority = cur.getString(cur.getColumnIndex(DBHelper.TODO_COLUMN_ITEM_PRIORITY));
             ListItem.ItemPriority itemPriorityEnum = itemPriority.equals("H") ? ListItem.ItemPriority.HIGH :
                     itemPriority.equals("M") ? ListItem.ItemPriority.MEDIUM : ListItem.ItemPriority.LOW;
-            ListItem listItem = new ListItem(itemName, itemCreationTime, itemDueTime, itemPriorityEnum);
+            ListItem listItem = new ListItem(itemName, itemDueTime, itemPriorityEnum);
             listItems.add(listItem);
             cur.moveToNext();
         }

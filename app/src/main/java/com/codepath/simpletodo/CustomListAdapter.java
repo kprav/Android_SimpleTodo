@@ -27,13 +27,11 @@ public class CustomListAdapter extends ArrayAdapter<ListItem> {
 
         // Lookup view for data population
         TextView tvItemValue = (TextView) convertView.findViewById(R.id.tvItemValue);
-        TextView tvCreationTime = (TextView) convertView.findViewById(R.id.tvCreationTime);
         TextView tvDueTime = (TextView) convertView.findViewById(R.id.tvDueTime);
         TextView tvPriority = (TextView) convertView.findViewById(R.id.tvPriority);
 
         // Populate the data into the template view using the data object
         tvItemValue.setText(item.getItemValue());
-        tvCreationTime.setText(item.getItemCreationTime());
         tvDueTime.setText(item.getItemDueTime());
         tvPriority.setText(item.getItemPriorityAsString());
 
@@ -44,6 +42,11 @@ public class CustomListAdapter extends ArrayAdapter<ListItem> {
     public String getItemValue(int position) {
         ListItem item = getItem(position);
         return item.getItemValue();
+    }
+
+    public String getItemDueTime(int position) {
+        ListItem item = getItem(position);
+        return item.getItemDueTime();
     }
 
 }

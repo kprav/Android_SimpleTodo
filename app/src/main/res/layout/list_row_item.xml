@@ -1,40 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    >
-
-    <TextView
-        android:id="@+id/tvCreationTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingRight="6dp" />
+    android:padding="10dp">
 
     <TextView
         android:id="@+id/tvItemValue"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingRight="6dp"
-        android:layout_alignBaseline="@+id/tvCreationTime"
-        android:layout_alignBottom="@+id/tvCreationTime"
-        android:layout_toRightOf="@+id/tvCreationTime" />
+        android:layout_weight="1"
+        android:gravity="start"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvDueTime"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingRight="6dp"
-        android:layout_alignBottom="@+id/tvItemValue"
-        android:layout_toRightOf="@+id/tvItemValue" />
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvPriority"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingRight="10dp"
-        android:layout_alignBottom="@+id/tvDueTime"
-        android:layout_toRightOf="@+id/tvDueTime" />
+        android:layout_weight="1"
+        android:gravity="end"
+        android:textStyle="bold" />
 
-</RelativeLayout>
+</LinearLayout>
+
+    <!--
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        >
+
+        <TextView
+            android:id="@+id/tvItemValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="6dp" />
+
+        <TextView
+            android:id="@+id/tvDueTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="6dp"
+            android:layout_alignBaseline="@+id/tvItemValue"
+            android:layout_alignBottom="@+id/tvItemValue"
+            android:layout_toRightOf="@+id/tvItemValue" />
+
+        <TextView
+            android:id="@+id/tvPriority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10dp"
+            android:layout_alignBottom="@+id/tvDueTime"
+            android:layout_toRightOf="@+id/tvDueTime" />
+
+    </RelativeLayout>
+
+    -->

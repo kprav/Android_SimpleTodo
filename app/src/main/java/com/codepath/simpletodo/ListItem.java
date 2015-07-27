@@ -7,7 +7,6 @@ public class ListItem {
     private static ArrayList<String> itemValueList = new ArrayList<String>();
 
     private String itemValue;
-    private String itemCreationTime;
     private String itemDueTime;
     private ItemPriority itemPriority;
 
@@ -16,16 +15,16 @@ public class ListItem {
 
         @Override
         public String toString() {
-            String returnValue = "M";
+            String returnValue = "MEDIUM";
             switch (this) {
                 case LOW:
-                    returnValue = "L";
+                    returnValue = "LOW";
                     break;
                 case MEDIUM:
-                    returnValue = "M";
+                    returnValue = "MEDIUM";
                     break;
                 case HIGH:
-                    returnValue = "H";
+                    returnValue = "HIGH";
                     break;
                 default:
                     throw new IllegalArgumentException();
@@ -35,25 +34,23 @@ public class ListItem {
     }
 
     // Constructor
-    public ListItem(String itemValue, String itemCreationTime, String itemDueTime, ItemPriority itemPriority) {
+    public ListItem(String itemValue, String itemDueTime, ItemPriority itemPriority) {
         this.itemValue = itemValue;
-        this.itemCreationTime = itemCreationTime;
         this.itemDueTime = itemDueTime;
         this.itemPriority = itemPriority;
         itemValueList.add(this.itemValue);
     }
 
     // Constructor
-    public ListItem(String itemValue, String itemCreationTime, String itemDueTime) {
+    public ListItem(String itemValue, String itemDueTime) {
         this.itemValue = itemValue;
-        this.itemCreationTime = itemCreationTime;
         this.itemDueTime = itemDueTime;
         this.itemPriority = ItemPriority.MEDIUM;
         itemValueList.add(this.itemValue);
     }
 
-    public static boolean checkIfItemAlreadyExists(String itemName) {
-        return itemValueList.contains(itemName);
+    public static boolean checkIfItemAlreadyExists(String itemValue) {
+        return itemValueList.contains(itemValue);
     }
 
     public static void removeFromItemValueList(String itemValue) {
@@ -62,10 +59,6 @@ public class ListItem {
 
     public String getItemValue() {
         return this.itemValue;
-    }
-
-    public String getItemCreationTime() {
-        return this.itemCreationTime;
     }
 
     public String getItemDueTime() {
