@@ -34,7 +34,7 @@ public class CustomListAdapter extends ArrayAdapter<ListItem> {
         // Populate the data into the template view using the data object
         tvItemValue.setText(item.getItemValue());
         tvDueTime.setText(item.getItemDueTime());
-        tvPriority.setText(item.getItemPriorityAsString());
+        tvPriority.setText(item.getItemPriority().toString());
 
         // Return the completed view to render on screen
         return convertView;
@@ -52,7 +52,7 @@ public class CustomListAdapter extends ArrayAdapter<ListItem> {
 
     public String getItemPriority(int position) {
         ListItem item = getItem(position);
-        return item.getItemPriorityAsString();
+        return item.getItemPriority().toString();
     }
 
 }

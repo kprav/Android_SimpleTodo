@@ -26,9 +26,20 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/btnAddItem"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/etPriorityPicker"
         android:hint="Enter a new item" />
+
+    <EditText
+        android:id="@+id/etPriorityPicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnAddItem"
+        android:layout_alignLeft="@+id/btnAddItem"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:focusable="false"
+        android:hint="Priority" />
 
     <EditText
         android:id="@+id/etDatePicker"

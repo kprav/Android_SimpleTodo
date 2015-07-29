@@ -12,7 +12,7 @@
         android:id="@+id/etUpdateItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btnUpdateItem"
+        android:layout_above="@+id/etUpdatePriorityPicker"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
@@ -22,11 +22,22 @@
         android:inputType="textMultiLine" />
 
     <EditText
+        android:id="@+id/etUpdatePriorityPicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnUpdateItem"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/etUpdateTimePicker"
+        android:layout_toLeftOf="@+id/etUpdateDatePicker"
+        android:focusable="false"
+        android:hint="Priority" />
+
+    <EditText
         android:id="@+id/etUpdateDatePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/btnUpdateItem"
+        android:layout_above="@+id/btnUpdateItem"
+        android:layout_alignTop="@+id/etUpdateTimePicker"
         android:layout_toLeftOf="@+id/etUpdateTimePicker"
         android:focusable="false"
         android:hint="Pick a date" />
@@ -35,8 +46,9 @@
         android:id="@+id/etUpdateTimePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/btnUpdateItem"
-        android:layout_toLeftOf="@+id/btnUpdateItem"
+        android:layout_above="@+id/btnUpdateItem"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:focusable="false"
         android:hint="Pick a time" />
 
@@ -45,8 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="260dp"
         android:onClick="onUpdateItem"
         android:text="UPDATE" />

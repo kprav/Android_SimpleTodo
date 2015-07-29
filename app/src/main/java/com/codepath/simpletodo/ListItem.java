@@ -31,24 +31,6 @@ public class ListItem {
             }
             return returnValue;
         }
-
-        public static ItemPriority toItemPriority(String string) {
-            ItemPriority itemPriority = MEDIUM;
-            switch(string) {
-                case "LOW":
-                    itemPriority = LOW;
-                    break;
-                case "MEDIUM":
-                    itemPriority = MEDIUM;
-                    break;
-                case "HIGH":
-                    itemPriority = HIGH;
-                    break;
-                default:
-                    throw new IllegalArgumentException();
-            }
-            return itemPriority;
-        }
     }
 
     // Constructor
@@ -75,6 +57,26 @@ public class ListItem {
         itemValueList.remove(itemValue);
     }
 
+    public static ItemPriority setItemPriority(String string) {
+        ItemPriority itemPriority = ItemPriority.MEDIUM;
+        if (string != null) {
+            switch (string) {
+                case "LOW":
+                    itemPriority = ItemPriority.LOW;
+                    break;
+                case "MEDIUM":
+                    itemPriority = ItemPriority.MEDIUM;
+                    break;
+                case "HIGH":
+                    itemPriority = ItemPriority.HIGH;
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+        return itemPriority;
+    }
+
     public String getItemValue() {
         return this.itemValue;
     }
@@ -87,7 +89,4 @@ public class ListItem {
         return this.itemPriority;
     }
 
-    public String getItemPriorityAsString() {
-        return this.itemPriority.toString();
-    }
 }

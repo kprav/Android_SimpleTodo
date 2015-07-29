@@ -18,8 +18,11 @@ import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class MainActivity extends Activity {
@@ -29,6 +32,7 @@ public class MainActivity extends Activity {
 
     private ListView lvItems;
     private EditText etNewItem;
+    private EditText etPriorityPicker;
     private EditText etDatePicker;
     private EditText etTimePicker;
     private DBHelper dbHelper;
@@ -42,6 +46,7 @@ public class MainActivity extends Activity {
 
         lvItems = (ListView) findViewById(R.id.lvItems);
         etNewItem = (EditText) findViewById(R.id.etNewItem);
+        etPriorityPicker = (EditText) findViewById(R.id.etPriorityPicker);
         etDatePicker = (EditText) findViewById(R.id.etDatePicker);
         etTimePicker = (EditText) findViewById(R.id.etTimePicker);
 
@@ -60,6 +65,7 @@ public class MainActivity extends Activity {
         lvItems.setAdapter(customListAdapter);
 
         setupListViewListener();
+        setupPriorityPicker();
         setupDatePickerListener();
         setupTimePickerListener();
     }
@@ -70,24 +76,27 @@ public class MainActivity extends Activity {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
 
             int itemPosition = result.getIntExtra("itemPosition", 0);
-            String itemValue = customListAdapter.getItemValue(itemPosition);
+            String itemValue = result.getStringExtra("itemValue");
             String itemNewValue = result.getStringExtra("itemNewValue");
-            String updatedItemDueTime = result.getStringExtra("updatedItemDueTime");
-            if (updatedItemDueTime == null)
-                updatedItemDueTime = customListAdapter.getItemDueTime(itemPosition);
+            String itemNewPriority = result.getStringExtra("itemNewPriority");
+            String itemNewDueTime = result.getStringExtra("itemNewDueTime");
 
-            if (updateItemInDb(itemPosition, itemValue, itemNewValue, updatedItemDueTime, null)) {
-                // ListItem newListItem = new ListItem(itemNewValue, updatedItemDueTime, itemPriority);
+            if (itemNewDueTime == null) {
+                itemNewDueTime = customListAdapter.getItemDueTime(itemPosition);
+            }
+            if (itemNewPriority == null) {
+                itemNewPriority = customListAdapter.getItemPriority(itemPosition);
+            }
+
+            if (updateItemInDb(itemPosition, itemValue, itemNewValue, itemNewDueTime, ListItem.setItemPriority(itemNewPriority))) {
                 ListItem.removeFromItemValueList(itemValue);
-                ListItem newListItem = new ListItem(itemNewValue, updatedItemDueTime);
+                ListItem newListItem = new ListItem(itemNewValue, itemNewDueTime, ListItem.setItemPriority(itemNewPriority));
                 listItems.remove(itemPosition);
                 listItems.add(itemPosition, newListItem);
                 customListAdapter.notifyDataSetChanged();
             }
 
-            etNewItem.setText("");
-            etDatePicker.setText("");
-            etTimePicker.setText("");
+            resetEditTextFields();
         }
     }
 
@@ -143,7 +152,45 @@ public class MainActivity extends Activity {
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
                 intent.putExtra("itemPosition", pos);
                 intent.putExtra("itemValue", customListAdapter.getItemValue(pos));
+                intent.putExtra("itemPriority", customListAdapter.getItemPriority(pos));
+                intent.putExtra("itemDueTime", customListAdapter.getItemDueTime(pos));
                 startActivityForResult(intent, REQUEST_CODE);
+            }
+        });
+    }
+
+    // Pick a priority
+    private void setupPriorityPicker() {
+        final String LOW = ListItem.ItemPriority.LOW.toString();
+        final String MEDIUM = ListItem.ItemPriority.MEDIUM.toString();
+        final String HIGH = ListItem.ItemPriority.HIGH.toString();
+        final CharSequence[] priorityTypes = {LOW, MEDIUM, HIGH};
+        etPriorityPicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog dialog;
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int priority) {
+                        switch (priority) {
+                            case 0:
+                                etPriorityPicker.setText(LOW);
+                                break;
+                            case 1:
+                                etPriorityPicker.setText(MEDIUM);
+                                break;
+                            case 2:
+                                etPriorityPicker.setText(HIGH);
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                };
+                builder.setTitle("Select the priority of this item");
+                builder.setSingleChoiceItems(priorityTypes, -1, dialogClickListener);
+                dialog = builder.create();
+                dialog.show();
             }
         });
     }
@@ -162,7 +209,7 @@ public class MainActivity extends Activity {
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-                                etDatePicker.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
+                                etDatePicker.setText(formatDate(monthOfYear, dayOfMonth, year));
                             }
                         }, mYear, mMonth, mDay);
                 dpd.show();
@@ -183,12 +230,44 @@ public class MainActivity extends Activity {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay,
                                                   int minute) {
-                                etTimePicker.setText(hourOfDay + ":" + minute);
+                                etTimePicker.setText(formatTime(hourOfDay, minute));
                             }
                         }, mHour, mMinute, false);
                 tpd.show();
             }
         });
+    }
+
+    // Format Date to mm/dd/yyyy format
+    private String formatDate(int month, int day, int year) {
+        String date = null;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        Date d = cal.getTime();
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        date = dateFormat.format(d);
+        return date;
+    }
+
+    // Format time to hh24:mi format
+    private String formatTime(int hour, int minute) {
+        String time = null;
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR, hour);
+        cal.set(Calendar.MINUTE, minute);
+        Date d = cal.getTime();
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        time = dateFormat.format(d);
+        return time;
+    }
+
+    private void resetEditTextFields() {
+        etNewItem.setText("");
+        etPriorityPicker.setText("");
+        etDatePicker.setText("");
+        etTimePicker.setText("");
     }
 
     // Read items from SQLite DB
@@ -213,12 +292,12 @@ public class MainActivity extends Activity {
     }
 
     // Update an item in SQLite DB
-    private boolean updateItemInDb(int itemPosition, String itemValue, String itemNewValue, String itemDueTime, ListItem.ItemPriority itemPriority) {
+    private boolean updateItemInDb(int itemPosition, String itemValue, String itemNewValue, String itemNewDueTime, ListItem.ItemPriority itemNewPriority) {
         if (listItems != null && ListItem.checkIfItemAlreadyExists(itemNewValue) && !itemNewValue.equals(listItems.get(itemPosition).getItemValue())) {
             Toast.makeText(getApplicationContext(), "Item already exists. Original item preserved!", Toast.LENGTH_SHORT).show();
             return false;
         } else {
-            dbHelper.updateItem(itemValue, itemNewValue, itemDueTime, itemPriority == null ? ListItem.ItemPriority.MEDIUM.toString() : itemPriority.toString());
+            dbHelper.updateItem(itemValue, itemNewValue, itemNewDueTime, itemNewPriority == null ? ListItem.ItemPriority.MEDIUM.toString() : itemNewPriority.toString());
             return true;
         }
     }
@@ -226,17 +305,20 @@ public class MainActivity extends Activity {
     // Delete an existing item from the SQLite DB
     private void deleteItemFromDb(String itemValue) {
         dbHelper.deleteItem(itemValue);
-        etNewItem.setText("");
-        etDatePicker.setText("");
-        etTimePicker.setText("");
+        resetEditTextFields();
     }
 
     // Add new item
-    public void onAddItem(View v) {
+    public void onAddItem(View view) {
         String itemValue = etNewItem.getText().toString();
+        String itemPriorityString = etPriorityPicker.getText().toString();
+        ListItem.ItemPriority itemPriority = ListItem.ItemPriority.MEDIUM;
         if ((itemValue.length() == 0) || (itemValue.length() > 0 && itemValue.trim().length() == 0)) {
             Toast.makeText(getApplicationContext(), "Please enter a valid item", Toast.LENGTH_SHORT).show();
         } else if (itemValue.length() > 0) {
+            if (itemPriorityString.length() != 0) {
+                itemPriority = ListItem.setItemPriority(itemPriorityString);
+            }
             String itemDueTime = etDatePicker.getText().toString().trim() + " " + etTimePicker.getText().toString().trim();
             if (itemDueTime.trim().equals("")) {
                 itemDueTime = "No Due Date";
@@ -245,16 +327,13 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "You must pick both Date & Time or nothing", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (writeItemToDb(itemValue.trim(), itemDueTime, null)) {
-                // ListItem newListItem = new ListItem(itemValue, itemDueTime, itemPriority);
-                ListItem newListItem = new ListItem(itemValue, itemDueTime);
+            if (writeItemToDb(itemValue.trim(), itemDueTime, itemPriority)) {
+                ListItem newListItem = new ListItem(itemValue, itemDueTime, itemPriority);
                 customListAdapter.add(newListItem);
                 customListAdapter.notifyDataSetChanged();
             }
         }
-        etNewItem.setText("");
-        etDatePicker.setText("");
-        etTimePicker.setText("");
+        resetEditTextFields();
     }
 
     // Read items from file
