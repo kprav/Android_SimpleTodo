@@ -6,6 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@android:color/white"
     tools:context="com.codepath.simpletodo.EditItemActivity">
 
     <EditText
@@ -39,6 +40,7 @@
         android:layout_above="@+id/btnUpdateItem"
         android:layout_alignTop="@+id/etUpdateTimePicker"
         android:layout_toLeftOf="@+id/etUpdateTimePicker"
+        android:gravity="center"
         android:focusable="false"
         android:hint="Pick a date" />
 
@@ -49,6 +51,7 @@
         android:layout_above="@+id/btnUpdateItem"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:gravity="center"
         android:focusable="false"
         android:hint="Pick a time" />
 

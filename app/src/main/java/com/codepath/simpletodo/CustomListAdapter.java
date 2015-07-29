@@ -1,6 +1,10 @@
 package com.codepath.simpletodo;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +38,15 @@ public class CustomListAdapter extends ArrayAdapter<ListItem> {
         // Populate the data into the template view using the data object
         tvItemValue.setText(item.getItemValue());
         tvDueTime.setText(item.getItemDueTime());
-        tvPriority.setText(item.getItemPriority().toString());
+
+        // Set the priority and its background color
+        String itemPriority = item.getItemPriority().toString();
+        Spannable spanString = new SpannableStringBuilder(itemPriority);
+        spanString.setSpan(new BackgroundColorSpan(item.getItemColor()), 0, itemPriority.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvPriority.setText(spanString);
+
+        // Set the background color of the view
+        convertView.setBackgroundColor(Color.YELLOW);
 
         // Return the completed view to render on screen
         return convertView;

@@ -1,5 +1,7 @@
 package com.codepath.simpletodo;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 
 public class ListItem {
@@ -9,6 +11,7 @@ public class ListItem {
     private String itemValue;
     private String itemDueTime;
     private ItemPriority itemPriority;
+    private int itemColor;
 
     public enum ItemPriority {
         LOW, MEDIUM, HIGH;
@@ -38,6 +41,7 @@ public class ListItem {
         this.itemValue = itemValue;
         this.itemDueTime = itemDueTime;
         this.itemPriority = itemPriority;
+        this.itemColor = setItemColor(itemPriority);
         itemValueList.add(this.itemValue);
     }
 
@@ -46,6 +50,7 @@ public class ListItem {
         this.itemValue = itemValue;
         this.itemDueTime = itemDueTime;
         this.itemPriority = ItemPriority.MEDIUM;
+        this.itemColor = setItemColor(itemPriority);
         itemValueList.add(this.itemValue);
     }
 
@@ -77,6 +82,24 @@ public class ListItem {
         return itemPriority;
     }
 
+    public int setItemColor(ItemPriority itemPriority) {
+        int itemColor = Color.YELLOW;
+        switch (itemPriority) {
+            case LOW:
+                itemColor = Color.GREEN;
+                break;
+            case MEDIUM:
+                itemColor = Color.BLUE;
+                break;
+            case HIGH:
+                itemColor = Color.RED;
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        return itemColor;
+    }
+
     public String getItemValue() {
         return this.itemValue;
     }
@@ -87,6 +110,10 @@ public class ListItem {
 
     public ItemPriority getItemPriority() {
         return this.itemPriority;
+    }
+
+    public int getItemColor() {
+        return this.itemColor;
     }
 
 }
