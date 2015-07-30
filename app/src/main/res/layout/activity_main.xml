@@ -49,6 +49,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignTop="@+id/btnAddItem"
         android:layout_toLeftOf="@+id/etTimePicker"
+        android:textSize="17sp"
         android:focusable="false"
         android:hint="Pick a date" />
 
@@ -58,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/btnAddItem"
         android:layout_toLeftOf="@+id/btnAddItem"
+        android:textSize="17sp"
         android:focusable="false"
         android:hint="Pick a time" />
 
