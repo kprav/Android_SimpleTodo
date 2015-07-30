@@ -3,8 +3,9 @@ package com.codepath.simpletodo;
 import android.graphics.Color;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
-public class ListItem {
+public class ListItem implements Comparable<ListItem> {
 
     private static ArrayList<String> itemValueList = new ArrayList<String>();
 
@@ -12,6 +13,16 @@ public class ListItem {
     private String itemDueTime;
     private ItemPriority itemPriority;
     private int itemColor;
+
+    @Override
+    public int compareTo(ListItem another) {
+        if (this.itemPriority.ordinal() < another.itemPriority.ordinal())
+            return -1;
+        else if (this.itemPriority.ordinal() > another.itemPriority.ordinal())
+            return 1;
+        else
+            return 0;
+    }
 
     public enum ItemPriority {
         LOW, MEDIUM, HIGH;

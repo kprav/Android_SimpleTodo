@@ -22,6 +22,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 
 
@@ -36,6 +37,9 @@ public class MainActivity extends Activity {
     private EditText etDatePicker;
     private EditText etTimePicker;
     private DBHelper dbHelper;
+
+    private boolean isSorted = false;
+    private boolean sortedAscending = true;
 
     private int REQUEST_CODE = 20;
 
@@ -55,19 +59,18 @@ public class MainActivity extends Activity {
         etNewItem.requestFocus();
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
+        View header = (View) getLayoutInflater().inflate(R.layout.list_row_header, null);
+        lvItems.addHeaderView(header);
+
         initializeDatabase();
         readItemsFromDb();
-
-        View header = (View) getLayoutInflater().inflate(R.layout.list_row_header, null);
-        customListAdapter = new CustomListAdapter(this, listItems);
-
-        lvItems.addHeaderView(header);
-        lvItems.setAdapter(customListAdapter);
 
         setupListViewListener();
         setupPriorityPicker();
         setupDatePickerListener();
         setupTimePickerListener();
+
+        setCustomListAdapter();
     }
 
     @Override
@@ -93,11 +96,17 @@ public class MainActivity extends Activity {
                 ListItem newListItem = new ListItem(itemNewValue, itemNewDueTime, ListItem.setItemPriority(itemNewPriority));
                 listItems.remove(itemPosition);
                 listItems.add(itemPosition, newListItem);
+                if (isSorted) sort();
                 customListAdapter.notifyDataSetChanged();
             }
 
             resetEditTextFields();
         }
+    }
+
+    private void setCustomListAdapter() {
+        customListAdapter = new CustomListAdapter(this, listItems);
+        lvItems.setAdapter(customListAdapter);
     }
 
     private void initializeDatabase() {
@@ -263,11 +272,42 @@ public class MainActivity extends Activity {
         return time;
     }
 
+    // Reset the EditText fields
     private void resetEditTextFields() {
         etNewItem.setText("");
         etPriorityPicker.setText("");
         etDatePicker.setText("");
         etTimePicker.setText("");
+    }
+
+    // Sort the list items
+    private void sort() {
+        if (sortedAscending) {
+            sortAscending();
+        } else {
+            sortDescending();
+        }
+    }
+
+    // Sort the list items in ascending order of priority
+    private void sortAscending() {
+        isSorted = true;
+        sortedAscending = true;
+        Collections.sort(listItems);
+    }
+
+    // Sort the list items in descending order of priority
+    private void sortDescending() {
+        isSorted = true;
+        sortedAscending = false;
+        Collections.sort(listItems, Collections.reverseOrder());
+    }
+
+    // Clear sorting of list items and reset to original order of addition of items
+    private void clearSorting() {
+        isSorted = false;
+        readItemsFromDb();
+        setCustomListAdapter();
     }
 
     // Read items from SQLite DB
@@ -329,7 +369,8 @@ public class MainActivity extends Activity {
             }
             if (writeItemToDb(itemValue.trim(), itemDueTime, itemPriority)) {
                 ListItem newListItem = new ListItem(itemValue, itemDueTime, itemPriority);
-                customListAdapter.add(newListItem);
+                listItems.add(newListItem);
+                if (isSorted) sort();
                 customListAdapter.notifyDataSetChanged();
             }
         }
@@ -377,9 +418,19 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.sortLowToHigh) {
+            sortAscending();
         }
+
+        if (id == R.id.sortHighToLow) {
+            sortDescending();
+        }
+
+        if (id == R.id.clearSort) {
+            clearSorting();
+        }
+
+        customListAdapter.notifyDataSetChanged();
 
         return super.onOptionsItemSelected(item);
     }
