@@ -27,7 +27,7 @@ Developed as a part of CodePath Bootcamp Pre-work.
 
 ====== Demo: Add Items ======
 
-![demo](screenshots/Initial.gif)
+![demo](screenshots/add_items.gif)
 
 ====== Demo: Edit/Delete items ======
 
