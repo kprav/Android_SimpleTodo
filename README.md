@@ -40,7 +40,7 @@ Developed as a part of CodePath Bootcamp Pre-work.
 
 ====== Demo: No Duplicates ======
 
-![demo](screenshots/no_duplicate.gif)
+![demo](screenshots/no_duplicates.gif)
 
 ====== Demo: Sort items by Priority ======
 
