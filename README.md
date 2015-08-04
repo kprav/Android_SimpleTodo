@@ -5,10 +5,11 @@ Developed as a part of CodePath Bootcamp Pre-work.
 ====== Features ======
 * Users can add an item to the todo list.
 * Users can remove an item from the todo list (by long pressing on the item).
-* Users can tap an item to edit it -> done via intents and edit item activity.
+* Users can tap an item to edit it.
 * The items are persisted and retrieved on app restart.
 
 ====== Enhancements ======
+* Dialog Fragment to edit item (instead of another activity).
 * Custom Adapter for list view to display item name, completion due date and priority.
 * Set Completion due date and display it in list view for each item. Users can also choose to skip due date, in which case "No Due Date" will be displayed.
 * Set priority for each item - Low/Medium/High. If no priority is chosen by user, default priority is Medium.
@@ -29,9 +30,13 @@ Developed as a part of CodePath Bootcamp Pre-work.
 
 ![demo](screenshots/add_items.gif)
 
-====== Demo: Edit/Delete items ======
+====== Demo: Edit items ======
 
-![demo](screenshots/edit_delete_items.gif)
+![demo](screenshots/edit_items.gif)
+
+====== Demo: Delete items ======
+
+![demo](screenshots/delete_items.gif)
 
 ====== Demo: No Duplicates ======
 

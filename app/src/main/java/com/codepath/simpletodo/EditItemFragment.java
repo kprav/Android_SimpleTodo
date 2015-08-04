@@ -1,65 +1,111 @@
 package com.codepath.simpletodo;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/*
- Editing an item is now done using DialogFragment
- */
-@Deprecated
-public class EditItemActivity extends Activity {
+public class EditItemFragment extends DialogFragment {
 
     private EditText etUpdateItem;
     private EditText etUpdatePriorityPicker;
     private EditText etUpdateDatePicker;
     private EditText etUpdateTimePicker;
+    private Button btnUpdateItem;
 
-    private int itemPosition;
-    private String itemValue;
-    private String itemPriority;
-    private String itemDueTime;
+    private static int itemPosition;
+    private static String itemValue;
+    private static String itemPriority;
+    private static String itemDueTime;
+
+    public EditItemFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * @param itemPosition Parameter 1.
+     * @param itemValue    Parameter 2.
+     * @param itemPriority Parameter 3.
+     * @param itemDueTime  Parameter 4.
+     * @return A new instance of fragment EditItemFragment.
+     */
+    public static EditItemFragment newInstance(int itemPosition, String itemValue, String itemPriority, String itemDueTime) {
+        EditItemFragment fragment = new EditItemFragment();
+        Bundle args = new Bundle();
+        args.putString("itemPosition", Integer.toString(itemPosition));
+        args.putString("itemValue", itemValue);
+        args.putString("itemPriority", itemPriority);
+        args.putString("itemDueTime", itemDueTime);
+        fragment.setArguments(args);
+        EditItemFragment.itemPosition = itemPosition;
+        EditItemFragment.itemValue = itemValue;
+        EditItemFragment.itemPriority = itemPriority;
+        EditItemFragment.itemDueTime = itemDueTime;
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_item);
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.fragment_edit_item_theme);
+    }
 
-        // Get values from intent
-        itemValue = getIntent().getStringExtra("itemValue");
-        itemPosition = getIntent().getIntExtra("itemPosition", 0);
-        itemPriority = getIntent().getStringExtra("itemPriority");
-        itemDueTime = getIntent().getStringExtra("itemDueTime");
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog d = getDialog();
+        if (d != null) {
+            int width = ViewGroup.LayoutParams.MATCH_PARENT;
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+            d.getWindow().setLayout(width, height);
+        }
+    }
 
-        // Set the editItem Field
-        etUpdateItem = (EditText) findViewById(R.id.etUpdateItem);
-        etUpdatePriorityPicker = (EditText) findViewById(R.id.etUpdatePriorityPicker);
-        etUpdateDatePicker = (EditText) findViewById(R.id.etUpdateDatePicker);
-        etUpdateTimePicker = (EditText) findViewById(R.id.etUpdateTimePicker);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_edit_item, container, false);
 
-        editItem(itemValue, itemPriority, itemDueTime);
+        etUpdateItem = (EditText) view.findViewById(R.id.etUpdateItem);
+        etUpdatePriorityPicker = (EditText) view.findViewById(R.id.etUpdatePriorityPicker);
+        etUpdateDatePicker = (EditText) view.findViewById(R.id.etUpdateDatePicker);
+        etUpdateTimePicker = (EditText) view.findViewById(R.id.etUpdateTimePicker);
+        btnUpdateItem = (Button) view.findViewById(R.id.btnUpdateItem);
+
+        String title = getArguments().getString("title", "Edit Item");
+        getDialog().setTitle(title);
+
+        // Show soft keyboard automatically
+        etUpdateItem.requestFocus();
+        getDialog().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         setupPriorityPicker();
         setupDatePickerListener();
         setupTimePickerListener();
+        setupUpdateButtonListener();
+
+        editItem(itemValue, itemPriority, itemDueTime);
+
+        return view;
     }
 
     // Pick a priority
@@ -107,7 +153,7 @@ public class EditItemActivity extends Activity {
         etUpdateDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerDialog dpd = new DatePickerDialog(EditItemActivity.this,
+                DatePickerDialog dpd = new DatePickerDialog(getActivity(),
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year,
@@ -128,7 +174,7 @@ public class EditItemActivity extends Activity {
         etUpdateTimePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerDialog tpd = new TimePickerDialog(EditItemActivity.this,
+                TimePickerDialog tpd = new TimePickerDialog(getActivity(),
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay,
@@ -166,6 +212,33 @@ public class EditItemActivity extends Activity {
         return time;
     }
 
+    // Update the item with the edits
+    private void setupUpdateButtonListener() {
+        btnUpdateItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String itemNewValue = etUpdateItem.getText().toString();
+                String itemNewPriority = etUpdatePriorityPicker.getText().toString().trim();
+                String date = etUpdateDatePicker.getText().toString().trim();
+                String time = etUpdateTimePicker.getText().toString().trim();
+                String itemNewDueTime = date + " " + time;
+
+                if (itemNewPriority.trim().equals("")) {
+                    itemNewPriority = null;
+                }
+                if (itemNewDueTime.trim().equals("")) {
+                    itemNewDueTime = null;
+                }
+
+                OnFragmentInteractionListener listener = (OnFragmentInteractionListener) getActivity();
+                listener.onFinishEditItem(itemPosition, itemValue, itemNewValue, itemNewPriority, itemNewDueTime);
+
+                dismiss();
+            }
+        });
+    }
+
+    // Set the current values for the item to be edited
     private void editItem(String itemValue, String itemPriority, String itemDueTime) {
         // Set the editItem Field
         etUpdateItem.setFocusable(true);
@@ -181,39 +254,8 @@ public class EditItemActivity extends Activity {
         }
     }
 
-    public void onUpdateItem(View v) {
-        // Invoked on clicking UPDATE. Pass changes back to parent activity.
-        Intent result = new Intent();
-        String itemNewValue = etUpdateItem.getText().toString();
-        String itemNewPriority = etUpdatePriorityPicker.getText().toString().trim();
-        String date = etUpdateDatePicker.getText().toString().trim();
-        String time = etUpdateTimePicker.getText().toString().trim();
-        String itemNewDueTime = date + " " + time;
-
-        if (itemNewPriority.trim().equals("")) {
-            itemNewPriority = null;
-        }
-        if (itemNewDueTime.trim().equals("")) {
-            itemNewDueTime = null;
-        }
-
-        if ((itemNewValue.length() == 0) || (itemNewValue.length() > 0 && itemNewValue.trim().length() == 0)) {
-            Toast.makeText(getApplicationContext(), "Please enter a valid item", Toast.LENGTH_SHORT).show();
-        } else if (itemNewValue.length() > 0) {
-            if (itemNewDueTime != null) {
-                if ((date.equals("") && !time.equals("")) || (!date.equals("") && time.equals(""))) {
-                    Toast.makeText(getApplicationContext(), "You must pick both Date & Time or nothing", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }
-
-            result.putExtra("itemPosition", itemPosition);
-            result.putExtra("itemValue", itemValue);
-            result.putExtra("itemNewValue", itemNewValue.trim());
-            result.putExtra("itemNewPriority", itemNewPriority);
-            result.putExtra("itemNewDueTime", itemNewDueTime);
-            setResult(RESULT_OK, result);
-            finish();
-        }
+    // Activity must implement this method to interact with fragment
+    public interface OnFragmentInteractionListener {
+        public void onFinishEditItem(int itemPosition, String itemValue, String itemNewValue, String itemNewPriority, String itemNewDueTime);
     }
 }

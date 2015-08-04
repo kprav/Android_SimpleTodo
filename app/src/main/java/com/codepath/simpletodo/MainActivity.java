@@ -1,12 +1,13 @@
 package com.codepath.simpletodo;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity implements EditItemFragment.OnFragmentInteractionListener {
 
     private ArrayList<ListItem> listItems;
     private CustomListAdapter customListAdapter;
@@ -73,6 +74,11 @@ public class MainActivity extends Activity {
         setCustomListAdapter();
     }
 
+    /*
+     Not Used anymore as EditItemActivity is deprecated.
+     Editing an item is now done via DialogFragment.
+     The result from the fragment is obtained by implementing EditItemFragment.onFinishEditItem().
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         // Process the changes from EditItemActivity and Update the list
@@ -131,6 +137,7 @@ public class MainActivity extends Activity {
                                 deleteItemFromDb(listItems.get(pos).getItemValue());
                                 listItems.remove(pos);
                                 customListAdapter.notifyDataSetChanged();
+                                Toast.makeText(getApplicationContext(), "Selected Item Deleted", Toast.LENGTH_SHORT).show();
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
@@ -156,14 +163,30 @@ public class MainActivity extends Activity {
         lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Since there is a header for the list view, reduce position by 1
-                final int pos = position - 1;
+                /*
+                EditItemActivity not used anymore.
+                Editing an item is now done via DialogFragment.
+
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
                 intent.putExtra("itemPosition", pos);
                 intent.putExtra("itemValue", customListAdapter.getItemValue(pos));
                 intent.putExtra("itemPriority", customListAdapter.getItemPriority(pos));
                 intent.putExtra("itemDueTime", customListAdapter.getItemDueTime(pos));
                 startActivityForResult(intent, REQUEST_CODE);
+                 */
+
+                // If the header is clicked, simply return
+                if (position == 0)
+                    return;
+
+                // Since there is a header for the list view, reduce position by 1
+                final int pos = position - 1;
+                FragmentManager fm = getSupportFragmentManager();
+                EditItemFragment editItemFragment = EditItemFragment.newInstance(pos,
+                        customListAdapter.getItemValue(pos),
+                        customListAdapter.getItemPriority(pos),
+                        customListAdapter.getItemDueTime(pos));
+                editItemFragment.show(fm, "fragment_edit_item");
             }
         });
     }
@@ -229,7 +252,7 @@ public class MainActivity extends Activity {
     // Pick a time
     private void setupTimePickerListener() {
         final Calendar c = Calendar.getInstance();
-        final int mHour = c.get(Calendar.HOUR);
+        final int mHour = c.get(Calendar.HOUR_OF_DAY);
         final int mMinute = c.get(Calendar.MINUTE);
         etTimePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -264,7 +287,7 @@ public class MainActivity extends Activity {
     private String formatTime(int hour, int minute) {
         String time = null;
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR, hour);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, minute);
         Date d = cal.getTime();
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
@@ -372,6 +395,7 @@ public class MainActivity extends Activity {
                 listItems.add(newListItem);
                 if (isSorted) sort();
                 customListAdapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(), "New Item Added", Toast.LENGTH_SHORT).show();
             }
         }
         resetEditTextFields();
@@ -381,26 +405,26 @@ public class MainActivity extends Activity {
     // Deprecated, Now using SQLite DB
     @Deprecated
     private void readItemsFromFile() {
-//        File filesDir = getFilesDir();
-//        File todoFile = new File(filesDir, "todo.txt");
-//        try {
-//            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-//        } catch (IOException e) {
-//            items = new ArrayList<String>();
-//        }
+        // File filesDir = getFilesDir();
+        // File todoFile = new File(filesDir, "todo.txt");
+        // try {
+        //     items = new ArrayList<String>(FileUtils.readLines(todoFile));
+        // } catch (IOException e) {
+        //     items = new ArrayList<String>();
+        // }
     }
 
     // Write items to file
     // Deprecated, Now using SQLite DB
     @Deprecated
     private void writeItemsToFile() {
-//        File filesDir = getFilesDir();
-//        File todoFile = new File(filesDir, "todo.txt");
-//        try {
-//            FileUtils.writeLines(todoFile, items);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        // File filesDir = getFilesDir();
+        // File todoFile = new File(filesDir, "todo.txt");
+        // try {
+        //     FileUtils.writeLines(todoFile, items);
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
     }
 
     @Override
@@ -433,5 +457,27 @@ public class MainActivity extends Activity {
         customListAdapter.notifyDataSetChanged();
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFinishEditItem(int itemPosition, String itemValue, String itemNewValue, String itemNewPriority, String itemNewDueTime) {
+        if (itemNewDueTime == null) {
+            itemNewDueTime = customListAdapter.getItemDueTime(itemPosition);
+        }
+        if (itemNewPriority == null) {
+            itemNewPriority = customListAdapter.getItemPriority(itemPosition);
+        }
+
+        if (updateItemInDb(itemPosition, itemValue, itemNewValue, itemNewDueTime, ListItem.setItemPriority(itemNewPriority))) {
+            ListItem.removeFromItemValueList(itemValue);
+            ListItem newListItem = new ListItem(itemNewValue, itemNewDueTime, ListItem.setItemPriority(itemNewPriority));
+            listItems.remove(itemPosition);
+            listItems.add(itemPosition, newListItem);
+            if (isSorted) sort();
+            customListAdapter.notifyDataSetChanged();
+            Toast.makeText(getApplicationContext(), "Existing Item Updated", Toast.LENGTH_SHORT).show();
+        }
+
+        resetEditTextFields();
     }
 }
