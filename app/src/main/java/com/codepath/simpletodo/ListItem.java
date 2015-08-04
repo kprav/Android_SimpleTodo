@@ -2,17 +2,21 @@ package com.codepath.simpletodo;
 
 import android.graphics.Color;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.TreeSet;
 
 public class ListItem implements Comparable<ListItem> {
 
-    private static ArrayList<String> itemValueList = new ArrayList<String>();
+    private static TreeSet<String> itemValueList = null;
 
     private String itemValue;
     private String itemDueTime;
     private ItemPriority itemPriority;
     private int itemColor;
+
+    static {
+        if (itemValueList == null)
+            itemValueList = new TreeSet<String>();
+    }
 
     @Override
     public int compareTo(ListItem another) {
@@ -94,7 +98,7 @@ public class ListItem implements Comparable<ListItem> {
     }
 
     public int setItemColor(ItemPriority itemPriority) {
-        int itemColor = Color.YELLOW;
+        int itemColor = Color.BLUE;
         switch (itemPriority) {
             case LOW:
                 itemColor = Color.GREEN;
